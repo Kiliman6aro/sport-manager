@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="ua.pp.hophey.pushupapp.HelloController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="ua.pp.hophey.pushupapp.MainController">
     <children>
         <Label fx:id="welcomeText" layoutX="120.0" layoutY="30.0" text="Готовы начать тренировку?" />
         <TextField fx:id="setCountField" layoutX="120.0" layoutY="80.0" promptText="Количество подходов" />
