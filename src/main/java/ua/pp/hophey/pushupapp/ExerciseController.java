@@ -42,7 +42,7 @@ public class ExerciseController {
 
         // Инициализация Timeline
         exerciseTimeline = new Timeline();
-        exerciseTimeline.setCycleCount(Timeline.INDEFINITE); // Будет работать, пока не остановим
+        exerciseTimeline.setCycleCount(Timeline.INDEFINITE);
     }
 
     private void startExercise() {
@@ -61,12 +61,17 @@ public class ExerciseController {
         // Сброс текущего состояния
         currentRepetition = 0;
         statusLabel.setText("Начинаем!");
-        startButton.setDisable(true); // Блокируем кнопку во время выполнения
+        startButton.setDisable(true);
 
         // Очистка и настройка Timeline
         exerciseTimeline.getKeyFrames().clear();
-        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(2), event -> playNextRepetition())); // Пауза 2 секунды между командами
-        exerciseTimeline.play();
+        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(2), event -> playNextRepetition()));
+
+        // Первое повторение без задержки
+        playNextRepetition(); // Сразу воспроизводим "one"
+        if (totalRepetitions > 1) { // Запускаем таймер только если больше 1 повторения
+            exerciseTimeline.play();
+        }
     }
 
     private void playNextRepetition() {
@@ -75,23 +80,34 @@ public class ExerciseController {
         if (currentRepetition > totalRepetitions) {
             // Завершение сета
             exerciseTimeline.stop();
-            finishSound.stop(); // Сбрасываем звук перед воспроизведением
-            finishSound.play();
+            startButton.setDisable(false);
             statusLabel.setText("Готово!");
-            startButton.setDisable(false); // Разблокируем кнопку
             return;
         }
 
-        // Воспроизведение звука в зависимости от чётности повторения
-        MediaPlayer soundToPlay = (currentRepetition % 2 == 1) ? oneSound : twoSound;
-        soundToPlay.stop(); // Сбрасываем звук перед воспроизведением, чтобы он играл заново
-        soundToPlay.play();
+        // Определяем, последний ли это шаг
+        boolean isLastRepetition = (currentRepetition == totalRepetitions);
 
-        // Обновление статуса
-        statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions);
+        // Воспроизведение звука
+        if (isLastRepetition) {
+            finishSound.stop();
+            finishSound.play();
+            statusLabel.setText("Финиш!");
+        } else {
+            MediaPlayer soundToPlay = (currentRepetition % 2 == 1) ? oneSound : twoSound;
+            soundToPlay.stop();
+            soundToPlay.play();
+            statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions);
+        }
+
+        // Останавливаем Timeline, если это последнее повторение
+        if (isLastRepetition) {
+            exerciseTimeline.stop();
+            startButton.setDisable(false);
+        }
     }
 
-    // Метод для очистки ресурсов (вызывается при закрытии приложения, если нужно)
+    // Очистка ресурсов
     public void shutdown() {
         exerciseTimeline.stop();
         oneSound.dispose();
