@@ -1,58 +1,75 @@
 package ua.pp.hophey.pushupapp.Exercise;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
 
 public class ExerciseSet {
     private final int totalRepetitions;      // Общее количество повторений
-    private final double pauseDuration;      // Длительность паузы между шагами
+    private final long pauseDurationMillis;  // Длительность паузы в миллисекундах
     private final ExerciseHandler handler;   // Обработчик событий
 
     private int currentRepetition = 0;       // Счётчик завершённых повторений
     private boolean isExerciseStarted = false; // Флаг этапа в цикле
-    private final Timeline exerciseTimeline;
+    private volatile boolean running = false;  // Флаг для остановки потока
+    private Thread exerciseThread;           // Поток для выполнения сета
 
-    public ExerciseSet(int totalRepetitions, double pauseDuration, ExerciseHandler handler) {
+    public ExerciseSet(int totalRepetitions, double pauseDurationSeconds, ExerciseHandler handler) {
         this.totalRepetitions = totalRepetitions;
-        this.pauseDuration = pauseDuration;
+        this.pauseDurationMillis = (long) (pauseDurationSeconds * 1000); // Переводим секунды в миллисекунды
         this.handler = handler;
-
-        exerciseTimeline = new Timeline();
-        exerciseTimeline.setCycleCount(Timeline.INDEFINITE);
-        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(pauseDuration), event -> executeNextStep()));
     }
 
     public void start() {
-        if (totalRepetitions <= 0 || pauseDuration <= 0) {
+        if (totalRepetitions <= 0 || pauseDurationMillis <= 0) {
             throw new IllegalArgumentException("Количество повторений и пауза должны быть больше 0");
         }
 
         currentRepetition = 0;
         isExerciseStarted = false;
+        running = true;
 
-        // Первый шаг без задержки
-        executeNextStep();
-        exerciseTimeline.play();
+        exerciseThread = new Thread(() -> {
+            executeFirstStep(); // Первый шаг без задержки
+            while (running && currentRepetition < totalRepetitions) {
+                try {
+                    Thread.sleep(pauseDurationMillis); // Пауза между шагами
+                    executeNextStep();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    running = false;
+                }
+            }
+        });
+        exerciseThread.start();
     }
 
     public void stop() {
-        exerciseTimeline.stop();
+        running = false;
+        if (exerciseThread != null) {
+            exerciseThread.interrupt();
+        }
+    }
+
+    private void executeFirstStep() {
+        if (running) {
+            handler.onExerciseStart(currentRepetition + 1, totalRepetitions);
+            isExerciseStarted = true;
+        }
     }
 
     private void executeNextStep() {
-        if (!isExerciseStarted) {
-            handler.onExerciseStart(currentRepetition + 1, totalRepetitions);
-            isExerciseStarted = true;
-        } else {
+        if (!running) return;
+
+        if (isExerciseStarted) {
             handler.onExerciseEnd(currentRepetition + 1, totalRepetitions);
             currentRepetition++;
             isExerciseStarted = false;
 
             if (currentRepetition == totalRepetitions) {
-                exerciseTimeline.stop();
+                running = false;
                 handler.onSetComplete(totalRepetitions);
             }
+        } else if (currentRepetition < totalRepetitions) {
+            handler.onExerciseStart(currentRepetition + 1, totalRepetitions);
+            isExerciseStarted = true;
         }
     }
 }

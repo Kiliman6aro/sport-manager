@@ -1,14 +1,10 @@
 package ua.pp.hophey.pushupapp;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
 import ua.pp.hophey.pushupapp.Exercise.ExerciseHandler;
 import ua.pp.hophey.pushupapp.Exercise.ExerciseSet;
 
@@ -71,24 +67,30 @@ public class ExerciseController implements ExerciseHandler {
 
     @Override
     public void onExerciseStart(int currentRepetition, int totalRepetitions) {
-        oneSound.stop();
-        oneSound.play();
-        statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": One");
+        Platform.runLater(() -> { // Обновление UI в потоке JavaFX
+            oneSound.stop();
+            oneSound.play();
+            statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": One");
+        });
     }
 
     @Override
     public void onExerciseEnd(int currentRepetition, int totalRepetitions) {
-        twoSound.stop();
-        twoSound.play();
-        statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": Two");
+        Platform.runLater(() -> {
+            twoSound.stop();
+            twoSound.play();
+            statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": Two");
+        });
     }
 
     @Override
     public void onSetComplete(int totalRepetitions) {
-        finishSound.stop();
-        finishSound.play();
-        statusLabel.setText("Финиш!");
-        startButton.setDisable(false);
+        Platform.runLater(() -> {
+            finishSound.stop();
+            finishSound.play();
+            statusLabel.setText("Финиш!");
+            startButton.setDisable(false);
+        });
     }
 
     public void shutdown() {
