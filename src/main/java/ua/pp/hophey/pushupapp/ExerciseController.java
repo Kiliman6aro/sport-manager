@@ -5,6 +5,8 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -17,14 +19,14 @@ public class ExerciseController {
     @FXML
     private TextField repetitionsField;  // Текстовое поле для ввода количества повторений
     @FXML
-    private TextField timeForRepeat;  // Текстовое поле для ввода количества повторений
+    private Spinner<Double> timeForRepeat;  // Spinner для выбора времени на повторение (в секундах)
     @FXML
-    private Label statusLabel;  // Лейбл для отображения статуса
+    private Label statusLabel;           // Лейбл для отображения статуса
     @FXML
-    private Button startButton;  // Кнопка для начала упражнений
+    private Button startButton;          // Кнопка для начала упражнений
 
-    private int currentRepetition = 0;  // Счётчик завершённых повторений (циклов one-two)
-    private int totalRepetitions = 0;  // Общее количество повторений в подходе
+    private int currentRepetition = 0;   // Счётчик завершённых повторений (циклов one-two)
+    private int totalRepetitions = 0;    // Общее количество повторений в подходе
     private boolean isOnePlayed = false; // Флаг для отслеживания этапа в цикле (one или two)
 
     // Звуки
@@ -40,6 +42,12 @@ public class ExerciseController {
         twoSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/two.mp3")).toExternalForm()));
         finishSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/finish.mp3")).toExternalForm()));
 
+        // Настройка Spinner для времени паузы
+        SpinnerValueFactory.DoubleSpinnerValueFactory timeFactory =
+                new SpinnerValueFactory.DoubleSpinnerValueFactory(0.1, 10.0, 1.5, 0.1);
+        timeForRepeat.setValueFactory(timeFactory);
+        timeForRepeat.setEditable(true); // Позволяет вводить значения вручную
+
         // Обработчик нажатия кнопки "Начать"
         startButton.setOnAction(event -> startExercise());
 
@@ -49,15 +57,22 @@ public class ExerciseController {
     }
 
     private void startExercise() {
-        // Проверка ввода
+        // Проверка ввода количества повторений
         try {
             totalRepetitions = Integer.parseInt(repetitionsField.getText());
             if (totalRepetitions <= 0) {
-                statusLabel.setText("Введите число больше 0");
+                statusLabel.setText("Введите число повторений больше 0");
                 return;
             }
         } catch (NumberFormatException e) {
-            statusLabel.setText("Введите корректное число");
+            statusLabel.setText("Введите корректное число повторений");
+            return;
+        }
+
+        // Получение значения из Spinner (оно уже проверено на корректность)
+        double pauseDuration = timeForRepeat.getValue();
+        if (pauseDuration <= 0) {
+            statusLabel.setText("Время паузы должно быть больше 0");
             return;
         }
 
@@ -67,9 +82,9 @@ public class ExerciseController {
         statusLabel.setText("Начинаем!");
         startButton.setDisable(true);
 
-        // Очистка и настройка Timeline
+        // Очистка и настройка Timeline с пользовательской длительностью
         exerciseTimeline.getKeyFrames().clear();
-        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(Float.parseFloat(timeForRepeat.getText())), event -> playNextStep()));
+        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(pauseDuration), event -> playNextStep()));
 
         // Первое воспроизведение "one" без задержки
         playNextStep();
