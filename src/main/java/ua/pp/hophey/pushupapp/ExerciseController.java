@@ -1,7 +1,5 @@
 package ua.pp.hophey.pushupapp;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -11,56 +9,46 @@ import javafx.scene.control.TextField;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
+import ua.pp.hophey.pushupapp.Exercise.ExerciseHandler;
+import ua.pp.hophey.pushupapp.Exercise.ExerciseSet;
 
 import java.util.Objects;
 
-public class ExerciseController {
+public class ExerciseController implements ExerciseHandler {
 
     @FXML
-    private TextField repetitionsField;  // Текстовое поле для ввода количества повторений
+    private TextField repetitionsField;
     @FXML
-    private Spinner<Double> timeForRepeat;  // Spinner для выбора времени на повторение (в секундах)
+    private Spinner<Double> timeForRepeat;
     @FXML
-    private Label statusLabel;           // Лейбл для отображения статуса
+    private Label statusLabel;
     @FXML
-    private Button startButton;          // Кнопка для начала упражнений
+    private Button startButton;
 
-    private int currentRepetition = 0;   // Счётчик завершённых повторений (циклов one-two)
-    private int totalRepetitions = 0;    // Общее количество повторений в подходе
-    private boolean isOnePlayed = false; // Флаг для отслеживания этапа в цикле (one или two)
+    private ExerciseSet exerciseSet;
 
-    // Звуки
     private MediaPlayer oneSound;
     private MediaPlayer twoSound;
     private MediaPlayer finishSound;
 
-    private Timeline exerciseTimeline;  // Для управления циклом с паузами
-
     public void initialize() {
-        // Инициализация звуков
         oneSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/one.mp3")).toExternalForm()));
         twoSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/two.mp3")).toExternalForm()));
         finishSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/finish.mp3")).toExternalForm()));
 
-        // Настройка Spinner для времени паузы
         SpinnerValueFactory.DoubleSpinnerValueFactory timeFactory =
-                new SpinnerValueFactory.DoubleSpinnerValueFactory(0.1, 10.0, 1.5, 0.1);
+                new SpinnerValueFactory.DoubleSpinnerValueFactory(0.5, 10.0, 1.5, 0.5);
         timeForRepeat.setValueFactory(timeFactory);
-        timeForRepeat.setEditable(true); // Позволяет вводить значения вручную
+        timeForRepeat.setEditable(true);
 
-        // Обработчик нажатия кнопки "Начать"
         startButton.setOnAction(event -> startExercise());
-
-        // Инициализация Timeline
-        exerciseTimeline = new Timeline();
-        exerciseTimeline.setCycleCount(Timeline.INDEFINITE);
     }
 
     private void startExercise() {
-        // Проверка ввода количества повторений
+        int repetitions;
         try {
-            totalRepetitions = Integer.parseInt(repetitionsField.getText());
-            if (totalRepetitions <= 0) {
+            repetitions = Integer.parseInt(repetitionsField.getText());
+            if (repetitions <= 0) {
                 statusLabel.setText("Введите число повторений больше 0");
                 return;
             }
@@ -69,61 +57,44 @@ public class ExerciseController {
             return;
         }
 
-        // Получение значения из Spinner (оно уже проверено на корректность)
         double pauseDuration = timeForRepeat.getValue();
         if (pauseDuration <= 0) {
             statusLabel.setText("Время паузы должно быть больше 0");
             return;
         }
 
-        // Сброс текущего состояния
-        currentRepetition = 0;
-        isOnePlayed = false;
         statusLabel.setText("Начинаем!");
         startButton.setDisable(true);
-
-        // Очистка и настройка Timeline с пользовательской длительностью
-        exerciseTimeline.getKeyFrames().clear();
-        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(pauseDuration), event -> playNextStep()));
-
-        // Первое воспроизведение "one" без задержки
-        playNextStep();
-        if (totalRepetitions > 0) { // Запускаем таймер для продолжения
-            exerciseTimeline.play();
-        }
+        exerciseSet = new ExerciseSet(repetitions, pauseDuration, this);
+        exerciseSet.start();
     }
 
-    private void playNextStep() {
-        if (!isOnePlayed) {
-            // Воспроизводим "one"
-            oneSound.stop();
-            oneSound.play();
-            statusLabel.setText("Повторение " + (currentRepetition + 1) + " из " + totalRepetitions + ": One");
-            isOnePlayed = true;
-        } else {
-            // Воспроизводим "two" и завершаем повторение
-            twoSound.stop();
-            twoSound.play();
-            currentRepetition++; // Увеличиваем счётчик только после "two"
-            statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": Two");
-
-            // Проверяем, завершён ли сет
-            if (currentRepetition == totalRepetitions) {
-                exerciseTimeline.stop();
-                finishSound.stop();
-                finishSound.play();
-                statusLabel.setText("Финиш!");
-                startButton.setDisable(false);
-                return;
-            }
-
-            isOnePlayed = false; // Сбрасываем флаг для следующего "one"
-        }
+    @Override
+    public void onExerciseStart(int currentRepetition, int totalRepetitions) {
+        oneSound.stop();
+        oneSound.play();
+        statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": One");
     }
 
-    // Очистка ресурсов
+    @Override
+    public void onExerciseEnd(int currentRepetition, int totalRepetitions) {
+        twoSound.stop();
+        twoSound.play();
+        statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": Two");
+    }
+
+    @Override
+    public void onSetComplete(int totalRepetitions) {
+        finishSound.stop();
+        finishSound.play();
+        statusLabel.setText("Финиш!");
+        startButton.setDisable(false);
+    }
+
     public void shutdown() {
-        exerciseTimeline.stop();
+        if (exerciseSet != null) {
+            exerciseSet.stop();
+        }
         oneSound.dispose();
         twoSound.dispose();
         finishSound.dispose();
