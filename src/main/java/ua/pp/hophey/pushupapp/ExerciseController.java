@@ -21,8 +21,9 @@ public class ExerciseController {
     @FXML
     private Button startButton;  // Кнопка для начала упражнений
 
-    private int currentRepetition = 0;  // Счётчик текущего повторения
+    private int currentRepetition = 0;  // Счётчик завершённых повторений (циклов one-two)
     private int totalRepetitions = 0;  // Общее количество повторений в подходе
+    private boolean isOnePlayed = false; // Флаг для отслеживания этапа в цикле (one или two)
 
     // Звуки
     private MediaPlayer oneSound;
@@ -60,50 +61,46 @@ public class ExerciseController {
 
         // Сброс текущего состояния
         currentRepetition = 0;
+        isOnePlayed = false;
         statusLabel.setText("Начинаем!");
         startButton.setDisable(true);
 
         // Очистка и настройка Timeline
         exerciseTimeline.getKeyFrames().clear();
-        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(2), event -> playNextRepetition()));
+        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(2), event -> playNextStep()));
 
-        // Первое повторение без задержки
-        playNextRepetition(); // Сразу воспроизводим "one"
-        if (totalRepetitions > 1) { // Запускаем таймер только если больше 1 повторения
+        // Первое воспроизведение "one" без задержки
+        playNextStep();
+        if (totalRepetitions > 0) { // Запускаем таймер для продолжения
             exerciseTimeline.play();
         }
     }
 
-    private void playNextRepetition() {
-        currentRepetition++;
-
-        if (currentRepetition > totalRepetitions) {
-            // Завершение сета
-            exerciseTimeline.stop();
-            startButton.setDisable(false);
-            statusLabel.setText("Готово!");
-            return;
-        }
-
-        // Определяем, последний ли это шаг
-        boolean isLastRepetition = (currentRepetition == totalRepetitions);
-
-        // Воспроизведение звука
-        if (isLastRepetition) {
-            finishSound.stop();
-            finishSound.play();
-            statusLabel.setText("Финиш!");
+    private void playNextStep() {
+        if (!isOnePlayed) {
+            // Воспроизводим "one"
+            oneSound.stop();
+            oneSound.play();
+            statusLabel.setText("Повторение " + (currentRepetition + 1) + " из " + totalRepetitions + ": One");
+            isOnePlayed = true;
         } else {
-            MediaPlayer soundToPlay = (currentRepetition % 2 == 1) ? oneSound : twoSound;
-            soundToPlay.stop();
-            soundToPlay.play();
-            statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions);
-        }
+            // Воспроизводим "two" и завершаем повторение
+            twoSound.stop();
+            twoSound.play();
+            currentRepetition++; // Увеличиваем счётчик только после "two"
+            statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": Two");
 
-        // Останавливаем Timeline, если это последнее повторение
-        if (isLastRepetition) {
-            exerciseTimeline.stop();
-            startButton.setDisable(false);
+            // Проверяем, завершён ли сет
+            if (currentRepetition == totalRepetitions) {
+                exerciseTimeline.stop();
+                finishSound.stop();
+                finishSound.play();
+                statusLabel.setText("Финиш!");
+                startButton.setDisable(false);
+                return;
+            }
+
+            isOnePlayed = false; // Сбрасываем флаг для следующего "one"
         }
     }
 
