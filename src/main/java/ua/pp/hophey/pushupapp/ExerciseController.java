@@ -17,6 +17,8 @@ public class ExerciseController {
     @FXML
     private TextField repetitionsField;  // Текстовое поле для ввода количества повторений
     @FXML
+    private TextField timeForRepeat;  // Текстовое поле для ввода количества повторений
+    @FXML
     private Label statusLabel;  // Лейбл для отображения статуса
     @FXML
     private Button startButton;  // Кнопка для начала упражнений
@@ -67,7 +69,7 @@ public class ExerciseController {
 
         // Очистка и настройка Timeline
         exerciseTimeline.getKeyFrames().clear();
-        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(2), event -> playNextStep()));
+        exerciseTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(Float.parseFloat(timeForRepeat.getText())), event -> playNextStep()));
 
         // Первое воспроизведение "one" без задержки
         playNextStep();

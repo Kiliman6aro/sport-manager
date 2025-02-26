@@ -8,6 +8,9 @@
 <VBox xmlns="http://javafx.com/javafx/17.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ua.pp.hophey.pushupapp.ExerciseController">
     <Label text="Введите количество повторений:"/>
     <TextField fx:id="repetitionsField"/>
+
+    <Label text="Время на упражнение:"/>
+    <TextField fx:id="timeForRepeat"/>
     <Button text="Начать" fx:id="startButton"/>
     <Label fx:id="statusLabel"/>
 </VBox>
