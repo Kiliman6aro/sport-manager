@@ -50,6 +50,10 @@ public class ExerciseSet {
 
     }
 
+    public int getTotalRepetitions(){
+       return totalRepetitions;
+    }
+
     private void executeFirstStep() {
         if (running) {
             handler.onExerciseStart(currentRepetition + 1, totalRepetitions);
