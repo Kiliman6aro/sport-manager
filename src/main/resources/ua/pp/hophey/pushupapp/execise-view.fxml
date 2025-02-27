@@ -14,5 +14,7 @@
     <Spinner fx:id="timeForRepeat" prefWidth="100"/>
     <Button text="Начать" fx:id="startButton"/>
     <Label fx:id="statusLabel"/>
+
+    <Button fx:id="stopButton" text="Стоп"/>
 </VBox>
 

@@ -44,8 +44,10 @@ public class ExerciseSet {
     public void stop() {
         running = false;
         if (exerciseThread != null) {
-            exerciseThread.interrupt();
+            handler.onExerciseEnd(currentRepetition + 1, totalRepetitions);
+            handler.onSetComplete(totalRepetitions);
         }
+
     }
 
     private void executeFirstStep() {

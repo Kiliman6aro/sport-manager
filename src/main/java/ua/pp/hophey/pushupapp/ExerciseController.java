@@ -1,6 +1,7 @@
 package ua.pp.hophey.pushupapp;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.media.Media;
@@ -21,6 +22,9 @@ public class ExerciseController implements ExerciseHandler {
     @FXML
     private Button startButton;
 
+    @FXML
+    private Button stopButton;
+
     private ExerciseSet exerciseSet;
 
     private MediaPlayer oneSound;
@@ -38,6 +42,14 @@ public class ExerciseController implements ExerciseHandler {
         timeForRepeat.setEditable(true);
 
         startButton.setOnAction(event -> startExercise());
+        stopButton.setOnAction(event -> stopExercise());
+    }
+
+    private void stopExercise() {
+        if (exerciseSet != null) {
+            exerciseSet.stop();
+            statusLabel.setText("Упражнение остановлено!");
+        }
     }
 
     private void startExercise() {
