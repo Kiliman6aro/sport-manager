@@ -59,13 +59,13 @@ public class ExerciseSet {
         if (!running) return;
 
         if (isExerciseStarted) {
-            handler.onExerciseEnd(currentRepetition + 1, totalRepetitions);
             currentRepetition++;
             isExerciseStarted = false;
-
             if (currentRepetition == totalRepetitions) {
                 running = false;
                 handler.onSetComplete(totalRepetitions);
+            }else{
+                handler.onExerciseEnd(currentRepetition + 1, totalRepetitions);
             }
         } else if (currentRepetition < totalRepetitions) {
             handler.onExerciseStart(currentRepetition + 1, totalRepetitions);
