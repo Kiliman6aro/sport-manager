@@ -3,8 +3,7 @@ package ua.pp.hophey.pushupapp;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.AudioClip;
 import ua.pp.hophey.pushupapp.workoutlib.event.*;
 import ua.pp.hophey.pushupapp.workoutlib.model.Exercise;
 import ua.pp.hophey.pushupapp.workoutlib.model.ExerciseSet;
@@ -21,16 +20,16 @@ public class WorkoutController {
     private Label timerLabel;
 
 
-    private MediaPlayer oneSound;
-    private MediaPlayer twoSound;
-    private MediaPlayer finishSound;
+    private AudioClip oneSound;
+    private AudioClip twoSound;
+    private AudioClip finishSound;
 
 
 
     public void initialize() {
-        oneSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/one.mp3")).toExternalForm()));
-        twoSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/two.mp3")).toExternalForm()));
-        finishSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/finish.mp3")).toExternalForm()));
+        oneSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/one.mp3")).toExternalForm());
+        twoSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/two.mp3")).toExternalForm());
+        finishSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/finish.mp3")).toExternalForm());
 
         List<Exercise> exercises = new ArrayList<>();
         exercises.add(new Exercise(2000)); // 1 секунда
@@ -55,20 +54,17 @@ public class WorkoutController {
         bus.subscribe(SetFinishedEvent.class, event ->
                 Platform.runLater(() -> {
                     statusLabel.setText("Подход завершился");
-                    finishSound.stop();
                     finishSound.play();
                 }));
         bus.subscribe(ExerciseStartedEvent.class, event ->
                 Platform.runLater(() -> {
                     statusLabel.setText("Упражнение началось");
-                    oneSound.stop();
                     oneSound.play();
                     timerLabel.setText(event.getDurationMillis() / 1000 + " сек");
                 }));
         bus.subscribe(ExerciseFinishedEvent.class, event ->
                 Platform.runLater(() -> {
                     statusLabel.setText("Упражнение завершено");
-                    twoSound.stop();
                     twoSound.play();
                     timerLabel.setText("");
                 }));
