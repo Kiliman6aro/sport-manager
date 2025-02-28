@@ -7,10 +7,11 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import ua.pp.hophey.pushupapp.Exercise.ExerciseHandler;
 import ua.pp.hophey.pushupapp.Exercise.ExerciseSet;
+import ua.pp.hophey.pushupapp.Exercise.SetHandler;
 
 import java.util.Objects;
 
-public class ExerciseController implements ExerciseHandler {
+public class ExerciseController implements ExerciseHandler, SetHandler {
 
     @FXML
     private TextField repetitionsField;
@@ -72,7 +73,7 @@ public class ExerciseController implements ExerciseHandler {
 
         statusLabel.setText("Начинаем!");
         startButton.setDisable(true);
-        exerciseSet = new ExerciseSet(repetitions, pauseDuration, this);
+        exerciseSet = new ExerciseSet(repetitions, pauseDuration, this, this);
         exerciseSet.start();
     }
 
@@ -92,6 +93,11 @@ public class ExerciseController implements ExerciseHandler {
             twoSound.play();
             statusLabel.setText("Повторение " + currentRepetition + " из " + totalRepetitions + ": Two");
         });
+    }
+
+    @Override
+    public void onSetStart(int totalRepetitions) {
+        //TODO: реализовать обработчик начала подхода
     }
 
     @Override

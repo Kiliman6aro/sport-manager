@@ -4,24 +4,26 @@ package ua.pp.hophey.pushupapp.Exercise;
 public class ExerciseSet {
     private final int totalRepetitions;      // Общее количество повторений
     private final long pauseDurationMillis;  // Длительность паузы в миллисекундах
-    private final ExerciseHandler handler;   // Обработчик событий
+    private final ExerciseHandler exerciseHandler;   // Обработчик событий упражениня в подходе
+    private final SetHandler setHandler;    // Обработчик событий подхода
 
     private int currentRepetition = 0;       // Счётчик завершённых повторений
     private boolean isExerciseStarted = false; // Флаг этапа в цикле
     private volatile boolean running = false;  // Флаг для остановки потока
     private Thread exerciseThread;           // Поток для выполнения сета
 
-    public ExerciseSet(int totalRepetitions, double pauseDurationSeconds, ExerciseHandler handler) {
+    public ExerciseSet(int totalRepetitions, double pauseDurationSeconds, ExerciseHandler exerciseHandler, SetHandler setHandler) {
         this.totalRepetitions = totalRepetitions;
         this.pauseDurationMillis = (long) (pauseDurationSeconds * 1000); // Переводим секунды в миллисекунды
-        this.handler = handler;
+        this.exerciseHandler = exerciseHandler;
+        this.setHandler = setHandler;
     }
 
     public void start() {
         if (totalRepetitions <= 0 || pauseDurationMillis <= 0) {
             throw new IllegalArgumentException("Количество повторений и пауза должны быть больше 0");
         }
-
+        setHandler.onSetStart(totalRepetitions);
         currentRepetition = 0;
         isExerciseStarted = false;
         running = true;
@@ -44,8 +46,8 @@ public class ExerciseSet {
     public void stop() {
         running = false;
         if (exerciseThread != null) {
-            handler.onExerciseEnd(currentRepetition + 1, totalRepetitions);
-            handler.onSetComplete(totalRepetitions);
+            exerciseHandler.onExerciseEnd(currentRepetition + 1, totalRepetitions);
+            setHandler.onSetComplete(totalRepetitions);
         }
 
     }
@@ -56,7 +58,7 @@ public class ExerciseSet {
 
     private void executeFirstStep() {
         if (running) {
-            handler.onExerciseStart(currentRepetition + 1, totalRepetitions);
+            exerciseHandler.onExerciseStart(currentRepetition + 1, totalRepetitions);
             isExerciseStarted = true;
         }
     }
@@ -69,12 +71,12 @@ public class ExerciseSet {
             isExerciseStarted = false;
             if (currentRepetition == totalRepetitions) {
                 running = false;
-                handler.onSetComplete(totalRepetitions);
+                setHandler.onSetComplete(totalRepetitions);
             }else{
-                handler.onExerciseEnd(currentRepetition + 1, totalRepetitions);
+                exerciseHandler.onExerciseEnd(currentRepetition + 1, totalRepetitions);
             }
         } else if (currentRepetition < totalRepetitions) {
-            handler.onExerciseStart(currentRepetition + 1, totalRepetitions);
+            exerciseHandler.onExerciseStart(currentRepetition + 1, totalRepetitions);
             isExerciseStarted = true;
         }
     }
