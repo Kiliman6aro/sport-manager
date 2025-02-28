@@ -1,6 +1,6 @@
 package ua.pp.hophey.pushupapp.workoutlib.model;
 
-import ua.pp.hophey.pushupapp.workoutlib.event.EventBus;
+import ua.pp.hophey.pushupapp.workoutlib.event.*;
 
 import java.util.List;
 
@@ -12,20 +12,32 @@ public class ExerciseSet implements Runnable{
     }
 
     public void start() {
-//        System.out.println("Подход начался");
-        EventBus.getInstance().post("Подход начался");
+        EventBus.getInstance().post(new SetStartedEvent(this));
         for (Exercise exercise : exercises) {
-            try{
-                Thread.sleep(exercise.getDurationMillis());
-                exercise.start();
-                Thread.sleep(exercise.getDurationMillis());
-                exercise.stop();
-            }catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+            long remaining = exercise.getDurationMillis();
+            while (remaining >= 0) {
+                EventBus.getInstance().post(new ExerciseTickEvent(exercise, remaining));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                remaining -= 1000;
             }
+            exercise.start();
+            remaining = exercise.getDurationMillis();
+            while (remaining >= 0) {
+                EventBus.getInstance().post(new ExerciseTickEvent(exercise, remaining));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                remaining -= 1000;
+            }
+            exercise.stop();
         }
-//        System.out.println("Подход завершился");
-        EventBus.getInstance().post("Подход завершился");
+        EventBus.getInstance().post(new SetFinishedEvent(this));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package ua.pp.hophey.pushupapp.workoutlib.model;
 
-import ua.pp.hophey.pushupapp.workoutlib.event.EventBus;
+import ua.pp.hophey.pushupapp.workoutlib.event.*;
 
 import java.util.List;
 
@@ -13,13 +13,23 @@ public class Workout implements Executable{
 
     @Override
     public void start() {
-//        System.out.println("Тренеровка началась");
-        EventBus.getInstance().post("Тренеровка началась");
-        for(ExerciseSet set: sets){
+        EventBus.getInstance().post(new WorkoutStartedEvent(this));
+        for (ExerciseSet set : sets) {
             set.start();
+            if (sets.indexOf(set) < sets.size() - 1) {
+                long remaining = 5000;
+                while (remaining >= 0) {
+                    EventBus.getInstance().post(new RestTickEvent(this, remaining));
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    remaining -= 1000;
+                }
+            }
         }
-//        System.out.println("Тренеровка завершилась");
-        EventBus.getInstance().post("Тренеровка завершилась");
+        EventBus.getInstance().post(new WorkoutFinishedEvent(this));
     }
 
     @Override

@@ -1,5 +1,5 @@
 package ua.pp.hophey.pushupapp.workoutlib.event;
 
 public interface EventListener {
-    void onEvent(String message);
+    void onEvent(WorkoutEvent event);
 }
