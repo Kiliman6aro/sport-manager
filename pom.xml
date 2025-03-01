@@ -30,6 +30,14 @@
             <artifactId>javafx-media</artifactId>
             <version>17.0.6</version>
         </dependency>
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx</artifactId>
+            <version>8.9</version>
+        </dependency>
+
+        <!-- Thanks for using https://jar-download.com -->
+
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>

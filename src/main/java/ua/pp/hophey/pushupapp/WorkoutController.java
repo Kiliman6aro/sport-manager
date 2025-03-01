@@ -1,25 +1,25 @@
 package ua.pp.hophey.pushupapp;
 
 import javafx.application.Platform;
-import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import ua.pp.hophey.pushupapp.workoutlib.event.*;
 import ua.pp.hophey.pushupapp.workoutlib.model.Exercise;
 import ua.pp.hophey.pushupapp.workoutlib.model.ExerciseSet;
 import ua.pp.hophey.pushupapp.workoutlib.model.Workout;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class WorkoutController {
-    @FXML
-    private Label statusLabel;
-    @FXML
-    private Label timerLabel;
 
 
+    public VBox container;
+    public Label statusLabel;
+    public Label timerLabel;
     private AudioClip oneSound;
     private AudioClip twoSound;
     private AudioClip finishSound;
@@ -27,6 +27,12 @@ public class WorkoutController {
 
 
     public void initialize() {
+        URL cssUrl = getClass().getResource("/ua/pp/hophey/pushupapp/css/styles.css");
+        if (cssUrl == null) {
+            System.err.println("CSS file not found at /ua/pp/hophey/pushupapp/css/styles.css");
+        } else {
+            System.out.println("CSS found: " + cssUrl);
+        }
         oneSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/one.mp3")).toExternalForm());
         twoSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/two.mp3")).toExternalForm());
         finishSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/finish.mp3")).toExternalForm());
@@ -43,7 +49,7 @@ public class WorkoutController {
         list.add(exerciseSet1);
         list.add(exerciseSet2);
         list.add(exerciseSet3);
-        Workout  w = new Workout(list);
+        Workout w = new Workout(list);
         EventBus bus = EventBus.getInstance();
         bus.subscribe(WorkoutStartedEvent.class, event ->
                 Platform.runLater(() -> statusLabel.setText("Тренировка началась")));
