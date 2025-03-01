@@ -1,10 +1,10 @@
 package ua.pp.hophey.pushupapp.workoutlib.model;
 
 import ua.pp.hophey.pushupapp.workoutlib.event.EventBus;
-import ua.pp.hophey.pushupapp.workoutlib.event.ExerciseFinishedEvent;
-import ua.pp.hophey.pushupapp.workoutlib.event.ExerciseStartedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.exercise.ExerciseFinishedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.exercise.ExerciseStartedEvent;
 
-public class Exercise implements Executable {
+public class Exercise {
 
     private final long durationMillis;
 
@@ -12,12 +12,10 @@ public class Exercise implements Executable {
         this.durationMillis = durationMillis;
     }
 
-    @Override
     public void start() {
         EventBus.getInstance().post(new ExerciseStartedEvent(this, durationMillis));
     }
 
-    @Override
     public void stop() {
         EventBus.getInstance().post(new ExerciseFinishedEvent(this));
     }

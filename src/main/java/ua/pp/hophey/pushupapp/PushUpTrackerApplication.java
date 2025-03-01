@@ -10,7 +10,7 @@ import java.io.IOException;
 public class PushUpTrackerApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(PushUpTrackerApplication.class.getResource("neumorphism.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(PushUpTrackerApplication.class.getResource("workout-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
         stage.setTitle("Hello!");
         stage.setScene(scene);

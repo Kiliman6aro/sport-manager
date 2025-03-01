@@ -1,4 +1,6 @@
-package ua.pp.hophey.pushupapp.workoutlib.event;
+package ua.pp.hophey.pushupapp.workoutlib.event.exercise;
+
+import ua.pp.hophey.pushupapp.workoutlib.event.WorkoutEvent;
 
 public class ExerciseStartedEvent extends WorkoutEvent {
     private final long durationMillis;

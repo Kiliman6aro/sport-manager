@@ -1,4 +1,4 @@
-package ua.pp.hophey.pushupapp;
+package ua.pp.hophey.pushupapp.controllers;
 
 import javafx.scene.input.MouseEvent;
 

@@ -1,17 +1,19 @@
 package ua.pp.hophey.pushupapp.workoutlib.model;
 
 import ua.pp.hophey.pushupapp.workoutlib.event.*;
+import ua.pp.hophey.pushupapp.workoutlib.event.workout.RestTickEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.workout.WorkoutFinishedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.workout.WorkoutStartedEvent;
 
 import java.util.List;
 
-public class Workout implements Executable{
+public class Workout{
     private final List<ExerciseSet> sets;
 
     public Workout(List<ExerciseSet> sets) {
         this.sets = sets;
     }
 
-    @Override
     public void start() {
         EventBus.getInstance().post(new WorkoutStartedEvent(this));
         for (ExerciseSet set : sets) {
@@ -30,10 +32,5 @@ public class Workout implements Executable{
             }
         }
         EventBus.getInstance().post(new WorkoutFinishedEvent(this));
-    }
-
-    @Override
-    public void stop() {
-
     }
 }

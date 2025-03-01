@@ -1,15 +1,22 @@
-package ua.pp.hophey.pushupapp;
+package ua.pp.hophey.pushupapp.controllers;
 
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
-import ua.pp.hophey.pushupapp.workoutlib.event.*;
+import ua.pp.hophey.pushupapp.workoutlib.event.EventBus;
+import ua.pp.hophey.pushupapp.workoutlib.event.exercise.ExerciseFinishedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.exercise.ExerciseStartedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.exercise.ExerciseTickEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.sets.SetFinishedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.sets.SetStartedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.workout.RestTickEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.workout.WorkoutFinishedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.workout.WorkoutStartedEvent;
 import ua.pp.hophey.pushupapp.workoutlib.model.Exercise;
 import ua.pp.hophey.pushupapp.workoutlib.model.ExerciseSet;
 import ua.pp.hophey.pushupapp.workoutlib.model.Workout;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,12 +34,6 @@ public class WorkoutController {
 
 
     public void initialize() {
-        URL cssUrl = getClass().getResource("/ua/pp/hophey/pushupapp/css/styles.css");
-        if (cssUrl == null) {
-            System.err.println("CSS file not found at /ua/pp/hophey/pushupapp/css/styles.css");
-        } else {
-            System.out.println("CSS found: " + cssUrl);
-        }
         oneSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/one.mp3")).toExternalForm());
         twoSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/two.mp3")).toExternalForm());
         finishSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/pushupapp/sounds/finish.mp3")).toExternalForm());

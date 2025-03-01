@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="ua.pp.hophey.pushupapp.WorkoutController">
+      fx:controller="ua.pp.hophey.pushupapp.controllers.WorkoutController">
 
     <Label fx:id="timerLabel"/>
 

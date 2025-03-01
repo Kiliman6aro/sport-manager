@@ -1,10 +1,13 @@
 package ua.pp.hophey.pushupapp.workoutlib.model;
 
-import ua.pp.hophey.pushupapp.workoutlib.event.*;
+import ua.pp.hophey.pushupapp.workoutlib.event.EventBus;
+import ua.pp.hophey.pushupapp.workoutlib.event.exercise.ExerciseTickEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.sets.SetFinishedEvent;
+import ua.pp.hophey.pushupapp.workoutlib.event.sets.SetStartedEvent;
 
 import java.util.List;
 
-public class ExerciseSet implements Runnable{
+public class ExerciseSet {
     private final List<Exercise> exercises;
 
     public ExerciseSet(List<Exercise> exercises) {
@@ -38,10 +41,5 @@ public class ExerciseSet implements Runnable{
             exercise.stop();
         }
         EventBus.getInstance().post(new SetFinishedEvent(this));
-    }
-
-    @Override
-    public void run() {
-        start();
     }
 }

@@ -1,4 +1,6 @@
-package ua.pp.hophey.pushupapp.workoutlib.event;
+package ua.pp.hophey.pushupapp.workoutlib.event.workout;
+
+import ua.pp.hophey.pushupapp.workoutlib.event.WorkoutEvent;
 
 public class RestTickEvent extends WorkoutEvent {
     private final long remainingMillis;
