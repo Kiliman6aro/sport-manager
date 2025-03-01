@@ -1,0 +1,7 @@
+/* Глобальные переменные */
+.root {
+    -fx-background-color: #24272C;
+    -fx-primary-background: #24272C;
+    -fx-shadow-dark: rgba(0, 0, 0, 0.25);
+    -fx-shadow-light: rgba(255, 255, 255, 0.05);
+}
