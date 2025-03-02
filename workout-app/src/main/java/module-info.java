@@ -6,6 +6,7 @@ module ua.pp.hophey.apps.workoutapp {
 
 
     opens ua.pp.hophey.apps.workoutapp to javafx.fxml;
+    opens ua.pp.hophey.apps.workoutapp.controllers to javafx.fxml;
     exports ua.pp.hophey.apps.workoutapp;
     exports ua.pp.hophey.apps.workoutapp.controllers;
 }
