@@ -4,12 +4,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
-import ua.pp.hophey.apps.workoutapp.PushUpTrackerApplication;
 import ua.pp.hophey.apps.workoutapp.di.Container;
 import ua.pp.hophey.apps.workoutapp.handlers.ExitHandler;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class MainMenuController {
 
