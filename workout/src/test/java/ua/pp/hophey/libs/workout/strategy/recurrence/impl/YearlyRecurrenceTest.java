@@ -56,4 +56,18 @@ class YearlyRecurrenceTest {
         LocalDate testDate = LocalDate.of(2021, 2, 28);
         assertFalse(recurrence.matches(testDate, originalDate));
     }
+
+    @Test
+    void testMatches_NonLeapYearToLeapYear() {
+        LocalDate originalDate = LocalDate.of(2023, 2, 28);
+        LocalDate testDate = LocalDate.of(2024, 2, 28); // Не 29-е
+        assertTrue(recurrence.matches(testDate, originalDate));
+    }
+
+    @Test
+    void testMatches_EndOfYear() {
+        LocalDate originalDate = LocalDate.of(2024, 12, 31);
+        LocalDate testDate = LocalDate.of(2025, 12, 31);
+        assertTrue(recurrence.matches(testDate, originalDate));
+    }
 }
