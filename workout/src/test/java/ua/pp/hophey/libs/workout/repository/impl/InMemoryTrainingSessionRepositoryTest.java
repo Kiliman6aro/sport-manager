@@ -1,9 +1,8 @@
-package ua.pp.hophey.libs.workout;
+package ua.pp.hophey.libs.workout.repository.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ua.pp.hophey.libs.workout.model.TrainingSession;
-import ua.pp.hophey.libs.workout.repository.MockTrainingSessionRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -11,12 +10,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MockTrainingSessionRepositoryTest {
-    private MockTrainingSessionRepository repository;
+public class InMemoryTrainingSessionRepositoryTest {
+    private InMemoryTrainingSessionRepository repository;
 
     @BeforeEach
     void setUp() {
-        repository = new MockTrainingSessionRepository();
+        repository = new InMemoryTrainingSessionRepository();
         // Добавляем тестовые данные
         repository.add(new TrainingSession(1L, LocalDate.of(2025, 3, 1), LocalTime.of(8, 0), "Daily Session", "daily", 1, null));
         repository.add(new TrainingSession(2L, LocalDate.of(2025, 3, 4), LocalTime.of(9, 0), "Weekly Session", "weekly", 1, null));

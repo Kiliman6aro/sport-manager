@@ -3,7 +3,7 @@ package ua.pp.hophey.libs.workout;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ua.pp.hophey.libs.workout.model.TrainingSession;
-import ua.pp.hophey.libs.workout.repository.MockTrainingSessionRepository;
+import ua.pp.hophey.libs.workout.repository.impl.InMemoryTrainingSessionRepository;
 import ua.pp.hophey.libs.workout.services.WorkoutService;
 
 import java.time.LocalDate;
@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class WorkoutServiceTest {
     private WorkoutService service;
-    private MockTrainingSessionRepository mockRepository;
+    private InMemoryTrainingSessionRepository mockRepository;
 
     @BeforeEach
     void setUp() {
-        mockRepository = new MockTrainingSessionRepository();
+        mockRepository = new InMemoryTrainingSessionRepository();
         service = new WorkoutService(mockRepository);
 
         mockRepository.add(new TrainingSession(1L, LocalDate.of(2025, 3, 1), LocalTime.of(8, 0), "Daily Session", "daily", 1, null));

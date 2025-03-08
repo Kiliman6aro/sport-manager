@@ -1,6 +1,7 @@
-package ua.pp.hophey.libs.workout.repository;
+package ua.pp.hophey.libs.workout.repository.impl;
 
 import ua.pp.hophey.libs.workout.model.TrainingSession;
+import ua.pp.hophey.libs.workout.repository.TrainingSessionRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-public class MockTrainingSessionRepository implements TrainingSessionRepository{
+public class InMemoryTrainingSessionRepository implements TrainingSessionRepository {
     private final List<TrainingSession> data = new ArrayList<>();
 
 
