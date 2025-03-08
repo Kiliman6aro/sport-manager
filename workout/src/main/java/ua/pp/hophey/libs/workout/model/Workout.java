@@ -1,12 +1,12 @@
 package ua.pp.hophey.libs.workout.model;
 
 
+import ua.pp.hophey.libs.workout.event.EventBus;
+import ua.pp.hophey.libs.workout.event.workout.RestTickEvent;
+import ua.pp.hophey.libs.workout.event.workout.WorkoutFinishedEvent;
+import ua.pp.hophey.libs.workout.event.workout.WorkoutStartedEvent;
 
 import java.util.List;
-import ua.pp.hophey.libs.workout.event.EventBus;
-import ua.pp.hophey.libs.workout.event.workout.WorkoutStartedEvent;
-import ua.pp.hophey.libs.workout.event.workout.WorkoutFinishedEvent;
-import ua.pp.hophey.libs.workout.event.workout.RestTickEvent;
 
 public class Workout{
     private final List<ExerciseSet> sets;
