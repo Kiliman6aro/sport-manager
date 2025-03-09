@@ -17,19 +17,4 @@ public class WorkoutService {
         this.repository = repository;
     }
 
-
-    public List<TrainingSession> getTrainingSessionsForDate(LocalDate date) {
-        return repository.findByDate(date).stream()
-                .filter(session -> session.getEndDate() == null || session.getEndDate().isAfter(date) || session.getEndDate().isEqual(date))
-                .filter(session -> session.getRecurrence().matches(date, session.getStartDate()))
-                .map(session -> new TrainingSession(
-                        session.getId(),
-                        date,
-                        session.getStartTime(),
-                        session.getName(),
-                        session.getRecurrenceType(),
-                        session.getRecurrenceInterval(),
-                        session.getEndDate()))
-                .collect(toList());
-    }
 }

@@ -17,10 +17,10 @@ public class InMemoryTrainingSessionRepositoryTest {
     void setUp() {
         repository = new InMemoryTrainingSessionRepository();
         // Добавляем тестовые данные
-        repository.add(new TrainingSession(1L, LocalDate.of(2025, 3, 1), LocalTime.of(8, 0), "Daily Session", "daily", 1, null));
-        repository.add(new TrainingSession(2L, LocalDate.of(2025, 3, 4), LocalTime.of(9, 0), "Weekly Session", "weekly", 1, null));
-        repository.add(new TrainingSession(3L, LocalDate.of(2025, 3, 5), LocalTime.of(10, 0), "Monthly Session", "monthly", 1, null));
-        repository.add(new TrainingSession(4L, LocalDate.of(2025, 2, 1), LocalTime.of(11, 0), "Expired Session", "daily", 1, LocalDate.of(2025, 3, 31)));
+        repository.add(new TrainingSession(1L, LocalDate.of(2025, 3, 1), LocalTime.of(8, 0), "Daily Session"));
+        repository.add(new TrainingSession(2L, LocalDate.of(2025, 3, 4), LocalTime.of(9, 0), "Weekly Session"));
+        repository.add(new TrainingSession(3L, LocalDate.of(2025, 3, 5), LocalTime.of(10, 0), "Monthly Session"));
+        repository.add(new TrainingSession(4L, LocalDate.of(2025, 2, 1), LocalTime.of(11, 0), "Expired Session"));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class InMemoryTrainingSessionRepositoryTest {
     @Test
     void shouldAddSession() {
         System.out.println("Тест: Проверка добавления новой сессии и её поиска по дате 2025-04-10");
-        TrainingSession newSession = new TrainingSession(5L, LocalDate.of(2025, 4, 10), LocalTime.of(12, 0), "New Session", "weekly", 1, null);
+        TrainingSession newSession = new TrainingSession(5L, LocalDate.of(2025, 4, 10), LocalTime.of(12, 0), "New Session");
         repository.add(newSession);
 
         List<TrainingSession> result = repository.findByDate(LocalDate.of(2025, 4, 10));
