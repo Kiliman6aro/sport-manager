@@ -25,7 +25,6 @@ public class InMemoryTrainingSessionRepositoryTest {
 
     @Test
     void shouldFindSessionsByDate() {
-        System.out.println("Тест: Проверка поиска сессий по точной дате (ожидается только сессия от 2025-03-05)");
         LocalDate testDate = LocalDate.of(2025, 3, 5);
         List<TrainingSession> result = repository.findByDate(testDate);
 
@@ -40,7 +39,6 @@ public class InMemoryTrainingSessionRepositoryTest {
 
     @Test
     void shouldFindSessionsByDateRangeZeroResult() {
-        System.out.println("Тест: Проверка поиска сессий в диапазоне дат с 2025-04-01 по 2025-04-07 (ожидаются 0 активные сессии)");
         LocalDate startDate = LocalDate.of(2025, 4, 1);
         LocalDate endDate = LocalDate.of(2025, 4, 7);
         List<TrainingSession> result = repository.findByDateRange(startDate, endDate);
@@ -50,7 +48,6 @@ public class InMemoryTrainingSessionRepositoryTest {
 
     @Test
     void shouldFindSessionsByDateRangeThreeResult() {
-        System.out.println("Тест: Проверка поиска сессий в диапазоне дат с 2025-03-01 по 2025-03-07 (ожидаются 3 активные сессии)");
         LocalDate startDate = LocalDate.of(2025, 3, 1);
         LocalDate endDate = LocalDate.of(2025, 3, 7);
         List<TrainingSession> result = repository.findByDateRange(startDate, endDate);
@@ -65,7 +62,6 @@ public class InMemoryTrainingSessionRepositoryTest {
 
     @Test
     void shouldFindSessionsByDateRangeTwoResult() {
-        System.out.println("Тест: Проверка поиска сессий в диапазоне дат с 2025-03-04 по 2025-03-05 (ожидаются 2 активные сессии)");
         LocalDate startDate = LocalDate.of(2025, 3, 4);
         LocalDate endDate = LocalDate.of(2025, 3, 5);
         List<TrainingSession> result = repository.findByDateRange(startDate, endDate);
@@ -78,7 +74,6 @@ public class InMemoryTrainingSessionRepositoryTest {
 
     @Test
     void shouldFindSessionsByDateRangeOneResult() {
-        System.out.println("Тест: Проверка поиска сессий в диапазоне дат с 2025-03-05 по 2025-03-05 (ожидаются 1 активные сессии)");
         LocalDate startDate = LocalDate.of(2025, 3, 5);
         LocalDate endDate = LocalDate.of(2025, 3, 5);
         List<TrainingSession> result = repository.findByDateRange(startDate, endDate);
@@ -89,7 +84,6 @@ public class InMemoryTrainingSessionRepositoryTest {
 
     @Test
     void shouldAddSession() {
-        System.out.println("Тест: Проверка добавления новой сессии и её поиска по дате 2025-04-10");
         TrainingSession newSession = new TrainingSession(5L, LocalDate.of(2025, 4, 10), LocalTime.of(12, 0), "New Session");
         repository.add(newSession);
 

@@ -15,34 +15,42 @@ public class TrainingSessionService {
         List<TrainingSession> result = new ArrayList<>();
 
         for (TrainingSession session : sessions) {
-            LocalDate currentDate = session.getStartDate();
+            LocalDate sessionStartDate = session.getStartDate();
             RecurrenceRule rule = session.getRecurrenceRule();
 
-            // Если правила нет, добавляем сессию только если она в диапазоне
+
+            if (sessionStartDate.isBefore(startDate) || sessionStartDate.isAfter(endDate)) {
+                continue;
+            }
+
+            //Если нет правила повторения, тонужно убедится,что дата старта попадает в промежуток между датами.
             if (rule == null) {
-                if (!currentDate.isBefore(startDate) && !currentDate.isAfter(endDate)) {
+                if (!sessionStartDate.isBefore(startDate) && !sessionStartDate.isAfter(endDate)) {
                     result.add(session);
                 }
                 continue;
             }
 
-            // Генерируем повторения
+
+            // Начинаем с начальной даты сессии или с начала диапазона, если она раньше
+            LocalDate currentDate = sessionStartDate.isBefore(startDate) ? startDate : sessionStartDate;
+
+            // Проходим по дням до конца диапазона
             while (!currentDate.isAfter(endDate)) {
-                if (!currentDate.isBefore(startDate) && rule.matches(currentDate, session.getStartDate())) {
-                    // Создаём новую сессию для каждой даты повторения
+                if (rule.matches(currentDate, sessionStartDate)) {
+                    // Создаём новую сессию с текущей датой
                     TrainingSession repeatedSession = new TrainingSession(
                             session.getId(),
                             currentDate,
                             session.getStartTime(),
                             session.getName()
                     );
-                    repeatedSession.setRecurrenceRule(rule); // Сохраняем правило
+                    repeatedSession.setRecurrenceRule(rule);
                     result.add(repeatedSession);
                 }
-                currentDate = currentDate.plusDays(1); // Шаг на день
+                currentDate = currentDate.plusDays(1);
             }
         }
-
         return result;
     }
 }
