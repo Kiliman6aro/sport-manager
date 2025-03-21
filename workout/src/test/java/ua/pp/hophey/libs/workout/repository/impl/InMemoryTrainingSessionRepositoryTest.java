@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import ua.pp.hophey.libs.workout.model.Exercise;
 import ua.pp.hophey.libs.workout.model.TrainingSession;
 import ua.pp.hophey.libs.workout.repository.TrainingSessionRepository;
-import ua.pp.hophey.libs.workout.repository.impl.InMemoryTrainingSessionRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class InMemoryTrainingSessionRepositoryTest {
