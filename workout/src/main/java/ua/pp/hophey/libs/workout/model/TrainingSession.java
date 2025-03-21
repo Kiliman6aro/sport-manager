@@ -4,6 +4,8 @@ import ua.pp.hophey.libs.workout.strategy.recurrence.RecurrenceRule;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TrainingSession {
 
@@ -13,12 +15,15 @@ public class TrainingSession {
     private String name;
     private RecurrenceRule recurrenceRule;
 
+    private List<Exercise> exercises;
+
 
     public TrainingSession(long id, LocalDate startDate, LocalTime startTime, String name) {
         this.id = id;
         this.startDate = startDate;
         this.startTime = startTime;
         this.name = name;
+        this.exercises = new ArrayList<>();
     }
 
     public long getId() {
@@ -59,5 +64,17 @@ public class TrainingSession {
 
     public RecurrenceRule getRecurrenceRule() {
         return this.recurrenceRule;
+    }
+
+    public List<Exercise> getExercises() {
+        return exercises;
+    }
+
+    public void setExercises(List<Exercise> exercises) {
+        this.exercises = exercises;
+    }
+
+    public void addExercise(Exercise exercise) {
+        this.exercises.add(exercise);
     }
 }
