@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class EventBus {
-    private static final EventBus INSTANCE = new EventBus();
+    private static EventBus INSTANCE = new EventBus();
     private final Map<Class<? extends WorkoutEvent>, List<Consumer<? extends WorkoutEvent>>> handlers = new HashMap<>();
 
     private EventBus() {}

@@ -1,4 +1,5 @@
 module ua.pp.hophey.libs.workout {
+    requires java.desktop;
     exports ua.pp.hophey.libs.workout.event;
     exports ua.pp.hophey.libs.workout.event.workout;
     exports ua.pp.hophey.libs.workout.event.sets;
