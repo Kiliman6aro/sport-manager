@@ -10,7 +10,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,9 +50,9 @@ class TrainingSessionServiceTest {
         List<LocalDate> dailyDates = result.stream()
                 .filter(s -> s.getId() == 1L)
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(15, dailyDates.size());
-        assertTrue(dailyDates.containsAll(List.of(
+        assertTrue(dailyDates.containsAll(Arrays.asList(
                 LocalDate.of(2025, 3, 10), LocalDate.of(2025, 3, 11), LocalDate.of(2025, 3, 12),
                 LocalDate.of(2025, 3, 13), LocalDate.of(2025, 3, 14), LocalDate.of(2025, 3, 15),
                 LocalDate.of(2025, 3, 16), LocalDate.of(2025, 3, 17), LocalDate.of(2025, 3, 18),
@@ -61,9 +63,9 @@ class TrainingSessionServiceTest {
         List<LocalDate> weeklyDates = result.stream()
                 .filter(s -> s.getId() == 2L)
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(2, weeklyDates.size());
-        assertTrue(weeklyDates.containsAll(List.of(
+        assertTrue(weeklyDates.containsAll(Arrays.asList(
                 LocalDate.of(2025, 3, 11), LocalDate.of(2025, 3, 18)
         )));
     }
@@ -86,18 +88,18 @@ class TrainingSessionServiceTest {
         List<LocalDate> monthlyDates = result.stream()
                 .filter(s -> s.getId() == 1L)
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(3, monthlyDates.size());
-        assertTrue(monthlyDates.containsAll(List.of(
+        assertTrue(monthlyDates.containsAll(Arrays.asList(
                 LocalDate.of(2025, 3, 5), LocalDate.of(2025, 4, 5), LocalDate.of(2025, 5, 5)
         )));
 
         List<LocalDate> mondayDates = result.stream()
                 .filter(s -> s.getId() == 2L)
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(12, mondayDates.size());
-        assertTrue(mondayDates.containsAll(List.of(
+        assertTrue(mondayDates.containsAll(Arrays.asList(
                 LocalDate.of(2025, 3, 10), LocalDate.of(2025, 3, 17), LocalDate.of(2025, 3, 24),
                 LocalDate.of(2025, 3, 31), LocalDate.of(2025, 4, 7), LocalDate.of(2025, 4, 14),
                 LocalDate.of(2025, 4, 21), LocalDate.of(2025, 4, 28), LocalDate.of(2025, 5, 5),
@@ -107,7 +109,7 @@ class TrainingSessionServiceTest {
         List<LocalDate> singleDates = result.stream()
                 .filter(s -> s.getId() == 3L)
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(1, singleDates.size());
         assertTrue(singleDates.contains(LocalDate.of(2025, 3, 15)));
     }
@@ -129,16 +131,16 @@ class TrainingSessionServiceTest {
         List<LocalDate> singleDates = result.stream()
                 .filter(s -> s.getId() == 1L)
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(1, singleDates.size());
         assertTrue(singleDates.contains(LocalDate.of(2025, 3, 15)));
 
         List<LocalDate> yearlyDates = result.stream()
                 .filter(s -> s.getId() == 2L)
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(2, yearlyDates.size());
-        assertTrue(yearlyDates.containsAll(List.of(
+        assertTrue(yearlyDates.containsAll(Arrays.asList(
                 LocalDate.of(2025, 3, 20), LocalDate.of(2026, 3, 20)
         )));
     }
@@ -176,18 +178,18 @@ class TrainingSessionServiceTest {
         List<LocalDate> weeklyDates = result.stream()
                 .filter(s -> s.getId() == 1L)
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(3, weeklyDates.size());
-        assertTrue(weeklyDates.containsAll(List.of(
+        assertTrue(weeklyDates.containsAll(Arrays.asList(
                 LocalDate.of(2025, 3, 10), LocalDate.of(2025, 3, 17), LocalDate.of(2025, 3, 24)
         )));
 
         List<LocalDate> singleDates = result.stream()
                 .filter(s -> s.getId() > 1L) // ID 2 и 3
                 .map(TrainingSession::getStartDate)
-                .toList();
+                .collect(Collectors.toList());
         assertEquals(2, singleDates.size());
-        assertTrue(singleDates.containsAll(List.of(
+        assertTrue(singleDates.containsAll(Arrays.asList(
                 LocalDate.of(2025, 3, 12), LocalDate.of(2025, 3, 14)
         )));
     }
