@@ -22,14 +22,17 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
+      <version>17.0.11</version>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
+      <version>17.0.11</version>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-media</artifactId>
+      <version>17.0.11</version>
     </dependency>
     <dependency>
       <groupId>de.jensd</groupId>
@@ -39,6 +42,7 @@
   </dependencies>
   <build>
     <plugins>
+      <!-- Компиляция для Java 17 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -47,6 +51,64 @@
           <source>17</source>
           <target>17</target>
         </configuration>
+      </plugin>
+      <!-- Копирование зависимостей в target/libs -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/libs</outputDirectory>
+              <includeScope>runtime</includeScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Создание JAR с манифестом -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>ua.pp.hophey.apps.workoutapp.PushUpTrackerApplication</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- Копирование исполняемного jar файл в целевую директорию -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>copy-jar-to-libs</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/libs</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>${project.build.finalName}.jar</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

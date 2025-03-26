@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import ua.pp.hophey.apps.workoutapp.controllers.MainMenuController;
+import ua.pp.hophey.apps.workoutapp.controllers.WorkoutController;
 import ua.pp.hophey.apps.workoutapp.di.Container;
 import ua.pp.hophey.apps.workoutapp.handlers.ExitHandler;
 
