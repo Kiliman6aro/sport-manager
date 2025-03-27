@@ -6,6 +6,10 @@ on:
       - master
       - workout-java8-supports
 
+# Добавляем разрешения для всего workflow
+permissions:
+  contents: write  # Необходимо для создания релизов
+
 jobs:
   build:
     runs-on: windows-latest
@@ -20,11 +24,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Сборка и установка базовой версии workout
       - name: Build and install base library
         run: mvn clean install -pl workout -am
 
-      # Сборка библиотеки для Android и сохранение артефакта
       - name: Build library for Android
         run: mvn clean package -pl workout -P android
 
@@ -34,7 +36,6 @@ jobs:
           move workout/target/workout-1.0-SNAPSHOT-android.jar artifacts/
         shell: pwsh
 
-      # Сборка библиотеки для JavaFX и сохранение артефакта
       - name: Build library for JavaFX
         run: mvn clean package -pl workout -P javafx
 
@@ -43,11 +44,9 @@ jobs:
           move workout/target/workout-1.0-SNAPSHOT-javafx.jar artifacts/
         shell: pwsh
 
-      # Сборка приложения
       - name: Build JavaFX app
         run: mvn clean package -pl workout-app
 
-      # Упаковка приложения с jpackage
       - name: Package app with jpackage
         run: |
           jpackage --name WorkoutUpApp `
@@ -62,13 +61,11 @@ jobs:
             --verbose
         shell: pwsh
 
-      # Архивируем app-image в .zip
       - name: Archive app-image
         run: |
           Compress-Archive -Path workout-app/target/dist/WorkoutUpApp -DestinationPath artifacts/WorkoutUpApp.zip
         shell: pwsh
 
-      # Загрузка артефактов
       - name: Upload Android JAR
         uses: actions/upload-artifact@v4
         with:
