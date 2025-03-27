@@ -24,32 +24,28 @@ jobs:
       - name: Build and install base library
         run: mvn clean install -pl workout -am
 
-      # Сборка библиотеки для Android
+      # Сборка библиотеки для Android и сохранение артефакта
       - name: Build library for Android
         run: mvn clean package -pl workout -P android
 
-      # Проверка наличия Android JAR
-      - name: Check Android JAR
-        run: dir workout/target/workout-1.0-SNAPSHOT-android.jar
+      - name: Move Android JAR to safe location
+        run: |
+          mkdir -p artifacts
+          move workout/target/workout-1.0-SNAPSHOT-android.jar artifacts/
         shell: pwsh
 
-      # Сборка библиотеки для JavaFX
+      # Сборка библиотеки для JavaFX и сохранение артефакта
       - name: Build library for JavaFX
         run: mvn clean package -pl workout -P javafx
 
-      # Проверка наличия JavaFX JAR
-      - name: Check JavaFX JAR
-        run: dir workout/target/workout-1.0-SNAPSHOT-javafx.jar
+      - name: Move JavaFX JAR to safe location
+        run: |
+          move workout/target/workout-1.0-SNAPSHOT-javafx.jar artifacts/
         shell: pwsh
 
       # Сборка приложения
       - name: Build JavaFX app
         run: mvn clean package -pl workout-app
-
-      # Проверка наличия JAR приложения
-      - name: Check App JAR
-        run: dir workout-app/target/workout-app-1.0-SNAPSHOT.jar
-        shell: pwsh
 
       # Упаковка приложения с jpackage
       - name: Package app with jpackage
@@ -69,30 +65,30 @@ jobs:
       # Архивируем app-image в .zip
       - name: Archive app-image
         run: |
-          Compress-Archive -Path workout-app/target/dist/WorkoutUpApp -DestinationPath workout-app/target/WorkoutUpApp.zip
+          Compress-Archive -Path workout-app/target/dist/WorkoutUpApp -DestinationPath artifacts/WorkoutUpApp.zip
         shell: pwsh
 
-      # Загрузка артефактов с проверкой
+      # Загрузка артефактов
       - name: Upload Android JAR
         uses: actions/upload-artifact@v4
         with:
           name: workout-android
-          path: workout/target/workout-1.0-SNAPSHOT-android.jar
-          if-no-files-found: error # Ошибка, если файл не найден
+          path: artifacts/workout-1.0-SNAPSHOT-android.jar
+          if-no-files-found: error
 
       - name: Upload JavaFX JAR
         uses: actions/upload-artifact@v4
         with:
           name: workout-javafx
-          path: workout/target/workout-1.0-SNAPSHOT-javafx.jar
-          if-no-files-found: error # Ошибка, если файл не найден
+          path: artifacts/workout-1.0-SNAPSHOT-javafx.jar
+          if-no-files-found: error
 
       - name: Upload App ZIP
         uses: actions/upload-artifact@v4
         with:
           name: WorkoutUpApp
-          path: workout-app/target/WorkoutUpApp.zip
-          if-no-files-found: error # Ошибка, если файл не найден
+          path: artifacts/WorkoutUpApp.zip
+          if-no-files-found: error
 
   create-release:
     runs-on: ubuntu-latest
