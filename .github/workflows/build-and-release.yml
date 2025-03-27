@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest # Используем Windows, так как нужна для jpackage
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Сборка и установка базовой версии workout в локальный репозиторий
+      # Сборка и установка базовой версии workout
       - name: Build and install base library
         run: mvn clean install -pl workout -am
 
@@ -28,13 +28,28 @@ jobs:
       - name: Build library for Android
         run: mvn clean package -pl workout -P android
 
+      # Проверка наличия Android JAR
+      - name: Check Android JAR
+        run: dir workout/target/workout-1.0-SNAPSHOT-android.jar
+        shell: pwsh
+
       # Сборка библиотеки для JavaFX
       - name: Build library for JavaFX
         run: mvn clean package -pl workout -P javafx
 
+      # Проверка наличия JavaFX JAR
+      - name: Check JavaFX JAR
+        run: dir workout/target/workout-1.0-SNAPSHOT-javafx.jar
+        shell: pwsh
+
       # Сборка приложения
       - name: Build JavaFX app
         run: mvn clean package -pl workout-app
+
+      # Проверка наличия JAR приложения
+      - name: Check App JAR
+        run: dir workout-app/target/workout-app-1.0-SNAPSHOT.jar
+        shell: pwsh
 
       # Упаковка приложения с jpackage
       - name: Package app with jpackage
@@ -57,24 +72,27 @@ jobs:
           Compress-Archive -Path workout-app/target/dist/WorkoutUpApp -DestinationPath workout-app/target/WorkoutUpApp.zip
         shell: pwsh
 
-      # Загрузка артефактов
+      # Загрузка артефактов с проверкой
       - name: Upload Android JAR
         uses: actions/upload-artifact@v4
         with:
           name: workout-android
           path: workout/target/workout-1.0-SNAPSHOT-android.jar
+          if-no-files-found: error # Ошибка, если файл не найден
 
       - name: Upload JavaFX JAR
         uses: actions/upload-artifact@v4
         with:
           name: workout-javafx
           path: workout/target/workout-1.0-SNAPSHOT-javafx.jar
+          if-no-files-found: error # Ошибка, если файл не найден
 
       - name: Upload App ZIP
         uses: actions/upload-artifact@v4
         with:
           name: WorkoutUpApp
           path: workout-app/target/WorkoutUpApp.zip
+          if-no-files-found: error # Ошибка, если файл не найден
 
   create-release:
     runs-on: ubuntu-latest
