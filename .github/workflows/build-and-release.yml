@@ -10,7 +10,6 @@ jobs:
   build-library:
     runs-on: ubuntu-latest
     steps:
-      # Установка JDK 17 для сборки
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -21,15 +20,12 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Сборка библиотеки для Android (Java 8)
       - name: Build library for Android
         run: mvn clean package -pl workout -P android
 
-      # Сборка библиотеки для JavaFX (Java 17)
       - name: Build library for JavaFX
         run: mvn clean package -pl workout -P javafx
 
-      # Загрузка артефактов
       - name: Upload Android JAR
         uses: actions/upload-artifact@v4
         with:
@@ -42,11 +38,20 @@ jobs:
           name: workout-javafx
           path: workout/target/workout-1.0-SNAPSHOT-javafx.jar
 
+      # Добавляем базовую версию workout для workout-app
+      - name: Build base library for workout-app
+        run: mvn clean package -pl workout
+
+      - name: Upload base JAR for workout-app
+        uses: actions/upload-artifact@v4
+        with:
+          name: workout-base
+          path: workout/target/workout-1.0-SNAPSHOT.jar
+
   build-app:
-    runs-on: windows-latest # jpackage для .exe требует Windows
-    needs: build-library # Ждем завершения сборки библиотеки
+    runs-on: windows-latest
+    needs: build-library
     steps:
-      # Установка JDK 17
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -57,24 +62,23 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Установка WiX Toolset для jpackage
-      - name: Install WiX Toolset
-        run: |
-          choco install wixtoolset -y
-        shell: pwsh
+      # Скачиваем базовый JAR из build-library
+      - name: Download base JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: workout-base
+          path: workout/target/
 
-      # Сборка приложения
       - name: Build JavaFX app
         run: mvn clean package -pl workout-app
 
-      # Упаковка в .exe с помощью jpackage
       - name: Package app with jpackage
         run: |
           jpackage --name WorkoutUpApp `
             --input workout-app/target/libs `
             --main-jar workout-app-1.0-SNAPSHOT.jar `
             --main-class ua.pp.hophey.apps.workoutapp.PushUpTrackerApplication `
-            --type exe `
+            --type app-image `
             --dest workout-app/target/dist `
             --module-path "${env:JAVA_HOME}/jmods;workout-app/target/libs" `
             --add-modules javafx.controls,javafx.fxml,javafx.media `
@@ -82,21 +86,24 @@ jobs:
             --verbose
         shell: pwsh
 
-      # Загрузка артефакта .exe
-      - name: Upload EXE
+      - name: Archive app-image
+        run: |
+          Compress-Archive -Path workout-app/target/dist/WorkoutUpApp -DestinationPath workout-app/target/WorkoutUpApp.zip
+        shell: pwsh
+
+      - name: Upload App ZIP
         uses: actions/upload-artifact@v4
         with:
           name: WorkoutUpApp
-          path: workout-app/target/dist/WorkoutUpApp.exe
+          path: workout-app/target/WorkoutUpApp.zip
 
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-library, build-app] # Ждем завершения всех сборок
+    needs: [build-library, build-app]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Скачивание всех артефактов
       - name: Download Android JAR
         uses: actions/download-artifact@v4
         with:
@@ -109,13 +116,12 @@ jobs:
           name: workout-javafx
           path: artifacts/
 
-      - name: Download EXE
+      - name: Download App ZIP
         uses: actions/download-artifact@v4
         with:
           name: WorkoutUpApp
           path: artifacts/
 
-      # Создание релиза
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -127,7 +133,6 @@ jobs:
           draft: false
           prerelease: false
 
-      # Прикрепление артефактов к релизу
       - name: Upload Android JAR to Release
         uses: actions/upload-release-asset@v1
         env:
@@ -148,12 +153,12 @@ jobs:
           asset_name: workout-1.0-SNAPSHOT-javafx.jar
           asset_content_type: application/java-archive
 
-      - name: Upload EXE to Release
+      - name: Upload App ZIP to Release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/WorkoutUpApp.exe
-          asset_name: WorkoutUpApp.exe
-          asset_content_type: application/x-msdownload
+          asset_path: artifacts/WorkoutUpApp.zip
+          asset_name: WorkoutUpApp.zip
+          asset_content_type: application/zip
