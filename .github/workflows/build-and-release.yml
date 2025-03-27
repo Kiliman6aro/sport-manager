@@ -1,0 +1,159 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+      - workout-java8-supports
+
+jobs:
+  build-library:
+    runs-on: ubuntu-latest
+    steps:
+      # Установка JDK 17 для сборки
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # Сборка библиотеки для Android (Java 8)
+      - name: Build library for Android
+        run: mvn clean package -pl workout -P android
+
+      # Сборка библиотеки для JavaFX (Java 17)
+      - name: Build library for JavaFX
+        run: mvn clean package -pl workout -P javafx
+
+      # Загрузка артефактов
+      - name: Upload Android JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: workout-android
+          path: workout/target/workout-1.0-SNAPSHOT-android.jar
+
+      - name: Upload JavaFX JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: workout-javafx
+          path: workout/target/workout-1.0-SNAPSHOT-javafx.jar
+
+  build-app:
+    runs-on: windows-latest # jpackage для .exe требует Windows
+    needs: build-library # Ждем завершения сборки библиотеки
+    steps:
+      # Установка JDK 17
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # Установка WiX Toolset для jpackage
+      - name: Install WiX Toolset
+        run: |
+          choco install wixtoolset -y
+        shell: pwsh
+
+      # Сборка приложения
+      - name: Build JavaFX app
+        run: mvn clean package -pl workout-app
+
+      # Упаковка в .exe с помощью jpackage
+      - name: Package app with jpackage
+        run: |
+          jpackage --name WorkoutUpApp `
+            --input workout-app/target/libs `
+            --main-jar workout-app-1.0-SNAPSHOT.jar `
+            --main-class ua.pp.hophey.apps.workoutapp.PushUpTrackerApplication `
+            --type exe `
+            --dest workout-app/target/dist `
+            --module-path "${env:JAVA_HOME}/jmods;workout-app/target/libs" `
+            --add-modules javafx.controls,javafx.fxml,javafx.media `
+            --win-console `
+            --verbose
+        shell: pwsh
+
+      # Загрузка артефакта .exe
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: WorkoutUpApp
+          path: workout-app/target/dist/WorkoutUpApp.exe
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-library, build-app] # Ждем завершения всех сборок
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Скачивание всех артефактов
+      - name: Download Android JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: workout-android
+          path: artifacts/
+
+      - name: Download JavaFX JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: workout-javafx
+          path: artifacts/
+
+      - name: Download EXE
+        uses: actions/download-artifact@v4
+        with:
+          name: WorkoutUpApp
+          path: artifacts/
+
+      # Создание релиза
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      # Прикрепление артефактов к релизу
+      - name: Upload Android JAR to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/workout-1.0-SNAPSHOT-android.jar
+          asset_name: workout-1.0-SNAPSHOT-android.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload JavaFX JAR to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/workout-1.0-SNAPSHOT-javafx.jar
+          asset_name: workout-1.0-SNAPSHOT-javafx.jar
+          asset_content_type: application/java-archive
+
+      - name: Upload EXE to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: artifacts/WorkoutUpApp.exe
+          asset_name: WorkoutUpApp.exe
+          asset_content_type: application/x-msdownload
