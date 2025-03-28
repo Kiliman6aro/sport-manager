@@ -6,9 +6,8 @@ on:
       - master
       - workout-java8-supports
 
-# Добавляем разрешения для всего workflow
 permissions:
-  contents: write  # Необходимо для создания релизов
+  contents: write
 
 jobs:
   build:
@@ -24,11 +23,17 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build and install base library
+      # Сборка и установка базовой версии workout с тестами
+      - name: Build and install base library with tests
         run: mvn clean install -pl workout -am
 
-      - name: Build library for Android
-        run: mvn clean package -pl workout -P android
+      # Тесты для базовой версии (опционально, если нужны отдельно)
+      - name: Run tests for base library
+        run: mvn test -pl workout
+
+      # Сборка и тесты для Android
+      - name: Build library for Android with tests
+        run: mvn clean test package -pl workout -P android
 
       - name: Move Android JAR to safe location
         run: |
@@ -36,17 +41,20 @@ jobs:
           move workout/target/workout-1.0-SNAPSHOT-android.jar artifacts/
         shell: pwsh
 
-      - name: Build library for JavaFX
-        run: mvn clean package -pl workout -P javafx
+      # Сборка и тесты для JavaFX
+      - name: Build library for JavaFX with tests
+        run: mvn clean test package -pl workout -P javafx
 
       - name: Move JavaFX JAR to safe location
         run: |
           move workout/target/workout-1.0-SNAPSHOT-javafx.jar artifacts/
         shell: pwsh
 
+      # Сборка приложения
       - name: Build JavaFX app
         run: mvn clean package -pl workout-app
 
+      # Упаковка приложения с jpackage
       - name: Package app with jpackage
         run: |
           jpackage --name WorkoutUpApp `
