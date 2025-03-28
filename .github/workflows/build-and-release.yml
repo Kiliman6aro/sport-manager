@@ -23,7 +23,6 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Установка WiX Toolset
       - name: Install WiX Toolset
         run: choco install wixtoolset -y
         shell: pwsh
@@ -62,6 +61,9 @@ jobs:
             --module-path "${env:JAVA_HOME}/jmods;workout-app/target/libs" `
             --add-modules javafx.controls,javafx.fxml,javafx.media `
             --win-console `
+            --win-dir-chooser `
+            --win-menu `
+            --win-shortcut `
             --verbose
         shell: pwsh
 
