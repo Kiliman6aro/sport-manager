@@ -23,15 +23,14 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Сборка и установка базовой версии workout с тестами
+      # Установка WiX Toolset
+      - name: Install WiX Toolset
+        run: choco install wixtoolset -y
+        shell: pwsh
+
       - name: Build and install base library with tests
         run: mvn clean install -pl workout -am
 
-      # Тесты для базовой версии (опционально, если нужны отдельно)
-      - name: Run tests for base library
-        run: mvn test -pl workout
-
-      # Сборка и тесты для Android
       - name: Build library for Android with tests
         run: mvn clean test package -pl workout -P android
 
@@ -41,7 +40,6 @@ jobs:
           move workout/target/workout-1.0-SNAPSHOT-android.jar artifacts/
         shell: pwsh
 
-      # Сборка и тесты для JavaFX
       - name: Build library for JavaFX with tests
         run: mvn clean test package -pl workout -P javafx
 
@@ -50,18 +48,16 @@ jobs:
           move workout/target/workout-1.0-SNAPSHOT-javafx.jar artifacts/
         shell: pwsh
 
-      # Сборка приложения
       - name: Build JavaFX app
         run: mvn clean package -pl workout-app
 
-      # Упаковка приложения с jpackage
-      - name: Package app with jpackage
+      - name: Package app with jpackage (MSI)
         run: |
           jpackage --name WorkoutUpApp `
             --input workout-app/target/libs `
             --main-jar workout-app-1.0-SNAPSHOT.jar `
             --main-class ua.pp.hophey.apps.workoutapp.PushUpTrackerApplication `
-            --type app-image `
+            --type msi `
             --dest workout-app/target/dist `
             --module-path "${env:JAVA_HOME}/jmods;workout-app/target/libs" `
             --add-modules javafx.controls,javafx.fxml,javafx.media `
@@ -69,9 +65,9 @@ jobs:
             --verbose
         shell: pwsh
 
-      - name: Archive app-image
+      - name: Move MSI to artifacts
         run: |
-          Compress-Archive -Path workout-app/target/dist/WorkoutUpApp -DestinationPath artifacts/WorkoutUpApp.zip
+          move workout-app/target/dist/WorkoutUpApp-*.msi artifacts/WorkoutUpApp.msi
         shell: pwsh
 
       - name: Upload Android JAR
@@ -88,11 +84,11 @@ jobs:
           path: artifacts/workout-1.0-SNAPSHOT-javafx.jar
           if-no-files-found: error
 
-      - name: Upload App ZIP
+      - name: Upload MSI
         uses: actions/upload-artifact@v4
         with:
           name: WorkoutUpApp
-          path: artifacts/WorkoutUpApp.zip
+          path: artifacts/WorkoutUpApp.msi
           if-no-files-found: error
 
   create-release:
@@ -114,7 +110,7 @@ jobs:
           name: workout-javafx
           path: artifacts/
 
-      - name: Download App ZIP
+      - name: Download MSI
         uses: actions/download-artifact@v4
         with:
           name: WorkoutUpApp
@@ -151,12 +147,12 @@ jobs:
           asset_name: workout-1.0-SNAPSHOT-javafx.jar
           asset_content_type: application/java-archive
 
-      - name: Upload App ZIP to Release
+      - name: Upload MSI to Release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: artifacts/WorkoutUpApp.zip
-          asset_name: WorkoutUpApp.zip
-          asset_content_type: application/zip
+          asset_path: artifacts/WorkoutUpApp.msi
+          asset_name: WorkoutUpApp.msi
+          asset_content_type: application/x-msi
