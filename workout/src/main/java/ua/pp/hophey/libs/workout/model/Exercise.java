@@ -13,10 +13,12 @@ import ua.pp.hophey.libs.workout.event.workout.WorkoutStartedEvent;
 
 public class Exercise{
     private final String name;              // Название упражнения
-    private final int setCount;            // Количество подходов
-    private final int repetitions;         // Количество повторений в подходе
-    private final int restTime;            // Перерыв между подходами (в секундах)
-    private final int durationPerRep;   // Длительность одного повторения (в секундах)
+    private final int setCount;             // Количество подходов
+    private final int repetitions;          // Количество повторений в подходе
+    private final int restTime;             // Перерыв между подходами (в секундах)
+    private final int durationPerRep;       // Длительность одного повторения (в секундах)
+
+    private boolean debugMode = false;
 
     public Exercise(String name, int setCount, int repetitions, int restTime, int durationPerRep) {
         this.name = name;
@@ -54,24 +56,24 @@ public class Exercise{
 
     public void run() {
         EventBus eventBus = EventBus.getInstance();
-        System.out.printf("Упражнение %s началось. [ %s ]%n", this.getName(), this);
+        log(String.format("Упражнение %s началось. [ %s ]%n", this.getName(), this));
         eventBus.post(new WorkoutStartedEvent(this));
         try {
             for (int i = 0; i < this.setCount; i++) {
-                System.out.printf("Начинаю подход %d %n", i + 1);
+                log(String.format("Начинаю подход %d %n", i + 1));
                 eventBus.post(new SetStartedEvent(this));
                 for (int j = 0; j < this.repetitions; j++) {
-                    System.out.printf("One: [%d] %n", j + 1);
+                    log(String.format("One: [%d] %n", j + 1));
                     eventBus.post(new ExerciseStartedEvent(this));
                     sleep((this.durationPerRep / 2) * 1000L);
-                    System.out.println("Two...");
+                    log(String.format("Two..."));
                     sleep((this.durationPerRep / 2) * 1000L);
                     eventBus.post(new ExerciseTickEvent(this));
                     eventBus.post(new ExerciseFinishedEvent(this));
                 }
                 eventBus.post(new SetFinishedEvent(this));
                 if (i < this.setCount - 1 && restTime > 0) {
-                    System.out.println("Отдых между подходами");
+                    log(String.format("Отдых между подходами"));
                     for (int r = 0; r < this.restTime; r++) {
                         sleep(1000L);
                         eventBus.post(new RestTickEvent(this));
@@ -79,16 +81,26 @@ public class Exercise{
                 }
             }
             eventBus.post(new WorkoutFinishedEvent(this));
-            System.out.printf("Упражнение %s закончилось. [ %s ]%n", this.getName(), this);
+            log(String.format("Упражнение %s закончилось. [ %s ]%n", this.getName(), this));
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             eventBus.post(new WorkoutInterruptedEvent(this));
-            System.out.printf("Упражнение %s прервано. [ %s ]%n", this.getName(), this);
+            log(String.format("Упражнение %s прервано. [ %s ]%n", this.getName(), this));
+        }
+    }
+
+    private void log(String s) {
+        if(this.debugMode){
+            System.out.println(s);
         }
     }
 
     // Делаем sleep публичным для Mockito
     public void sleep(long millis) throws InterruptedException {
         Thread.sleep(millis);
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
     }
 }

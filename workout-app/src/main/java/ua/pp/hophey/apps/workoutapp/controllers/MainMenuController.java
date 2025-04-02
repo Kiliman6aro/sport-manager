@@ -30,10 +30,12 @@ public class MainMenuController {
 
         Runnable task = () -> {
             Exercise e = new Exercise("Test", 2, 5, 60, 2);
+            e.setDebugMode(true);
             e.run();
         };
 
         Thread thread = new Thread(task);
+        thread.setDaemon(true);
         thread.start();
     }
 
