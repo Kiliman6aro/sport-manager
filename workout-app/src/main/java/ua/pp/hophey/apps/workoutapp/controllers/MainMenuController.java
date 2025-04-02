@@ -7,6 +7,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import ua.pp.hophey.apps.workoutapp.di.Container;
 import ua.pp.hophey.apps.workoutapp.handlers.ExitHandler;
+import ua.pp.hophey.libs.workout.manager.impl.BaseExerciseManager;
 import ua.pp.hophey.libs.workout.model.Exercise;
 
 import java.io.IOException;
@@ -28,15 +29,11 @@ public class MainMenuController {
         twoSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/apps/workoutapp/sounds/two.mp3")).toExternalForm());
         finishSound = new AudioClip(Objects.requireNonNull(getClass().getResource("/ua/pp/hophey/apps/workoutapp/sounds/finish.mp3")).toExternalForm());
 
-        Runnable task = () -> {
-            Exercise e = new Exercise("Test", 2, 5, 60, 2);
-            e.setDebugMode(true);
-            e.run();
-        };
+        Exercise exercise = new Exercise("Test", 2, 5, 60, 2);
+        exercise.setDebugMode(true);
+        BaseExerciseManager manager = new BaseExerciseManager();
+        manager.start(exercise);
 
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
     }
 
     public void handleStart(ActionEvent actionEvent) {
