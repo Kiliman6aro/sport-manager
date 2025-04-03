@@ -18,12 +18,7 @@ public class TrainingSessionService {
             LocalDate sessionStartDate = session.getStartDate();
             RecurrenceRule rule = session.getRecurrenceRule();
 
-
-            if (sessionStartDate.isBefore(startDate) || sessionStartDate.isAfter(endDate)) {
-                continue;
-            }
-
-            //Если нет правила повторения, тонужно убедится,что дата старта попадает в промежуток между датами.
+            // Если нет правила повторения, проверяем, попадает ли начальная дата в диапазон
             if (rule == null) {
                 if (!sessionStartDate.isBefore(startDate) && !sessionStartDate.isAfter(endDate)) {
                     result.add(session);
@@ -31,13 +26,12 @@ public class TrainingSessionService {
                 continue;
             }
 
+            // Для сессий с повторением: генерируем все даты, начиная с sessionStartDate,
+            // но включаем только те, что попадают в [startDate, endDate]
+            LocalDate currentDate = sessionStartDate;
 
-            // Начинаем с начальной даты сессии или с начала диапазона, если она раньше
-            LocalDate currentDate = sessionStartDate.isBefore(startDate) ? startDate : sessionStartDate;
-
-            // Проходим по дням до конца диапазона
             while (!currentDate.isAfter(endDate)) {
-                if (rule.matches(currentDate, sessionStartDate)) {
+                if (!currentDate.isBefore(startDate) && rule.matches(currentDate, sessionStartDate)) {
                     // Создаём новую сессию с текущей датой
                     TrainingSession repeatedSession = new TrainingSession(
                             session.getId(),
@@ -48,7 +42,7 @@ public class TrainingSessionService {
                     repeatedSession.setRecurrenceRule(rule);
                     result.add(repeatedSession);
                 }
-                currentDate = currentDate.plusDays(1);
+                currentDate = currentDate.plusDays(1); // Предполагаем ежедневное увеличение, можно адаптировать под правило
             }
         }
         return result;

@@ -157,7 +157,7 @@ class TrainingSessionServiceTest {
 
         List<TrainingSession> result = service.getSessionsInRange(sessions, startDate, endDate);
 
-        assertEquals(0, result.size(), "Ожидается 0 сессий, так как обе вне диапазона");
+        assertEquals(5, result.size(), "Ожидается 5 сессий, так как сессия на 15ое марта не повторяется.");
     }
 
     @Test
@@ -191,6 +191,31 @@ class TrainingSessionServiceTest {
         assertEquals(2, singleDates.size());
         assertTrue(singleDates.containsAll(Arrays.asList(
                 LocalDate.of(2025, 3, 12), LocalDate.of(2025, 3, 14)
+        )));
+    }
+
+    @Test
+    void testSessionStartingBeforeRangeWithDailyRecurrence() {
+        // Датасет: Daily сессия начинается 3 марта, но мы запрашиваем сессии с 9 марта
+        List<TrainingSession> sessions = new ArrayList<>();
+        sessions.add(createSession(1L, LocalDate.of(2025, 3, 3), new DailyRecurrence(), "Daily"));
+
+        LocalDate startDate = LocalDate.of(2025, 3, 9); // Начинаем запрашивать с 9 марта
+        LocalDate endDate = LocalDate.of(2025, 3, 15);  // До 15 марта
+
+        List<TrainingSession> result = service.getSessionsInRange(sessions, startDate, endDate);
+
+        assertEquals(7, result.size(), "Ожидается 7 сессий (с 9 по 15 марта)");
+
+        List<LocalDate> dailyDates = result.stream()
+                .filter(s -> s.getId() == 1L)
+                .map(TrainingSession::getStartDate)
+                .collect(Collectors.toList());
+        assertEquals(7, dailyDates.size());
+        assertTrue(dailyDates.containsAll(Arrays.asList(
+                LocalDate.of(2025, 3, 9), LocalDate.of(2025, 3, 10), LocalDate.of(2025, 3, 11),
+                LocalDate.of(2025, 3, 12), LocalDate.of(2025, 3, 13), LocalDate.of(2025, 3, 14),
+                LocalDate.of(2025, 3, 15)
         )));
     }
 }
