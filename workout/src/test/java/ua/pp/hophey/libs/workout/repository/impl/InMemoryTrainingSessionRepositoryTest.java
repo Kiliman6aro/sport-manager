@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InMemoryTrainingSessionRepositoryTest {
     private TrainingSessionRepository repository;
@@ -33,11 +34,16 @@ public class InMemoryTrainingSessionRepositoryTest {
         TrainingSession expiredSession = new TrainingSession(4L, LocalDate.of(2025, 2, 1), LocalTime.of(11, 0), "Expired Session");
         expiredSession.addExercise(new Exercise("Бег", 1, 1, 0, 1800));
 
+
+        TrainingSession futureSession = new TrainingSession(5L, LocalDate.of(2025, 4, 1), LocalTime.of(12, 0), "Future Session");
+        futureSession.addExercise(new Exercise("Спринт", 1, 5, 0, 300));
+
         // Добавляем тестовые данные в репозиторий
         repository.add(dailySession);
         repository.add(weeklySession);
         repository.add(monthlySession);
         repository.add(expiredSession);
+        repository.add(futureSession);
     }
 
     @Test
@@ -60,7 +66,7 @@ public class InMemoryTrainingSessionRepositoryTest {
 
     @Test
     void shouldReturnEmptyListForFutureDateRange() {
-        LocalDate startDate = LocalDate.of(2025, 4, 1);
+        LocalDate startDate = LocalDate.of(2025, 4, 2);
         LocalDate endDate = LocalDate.of(2025, 4, 7);
         List<TrainingSession> result = repository.findByDateRange(startDate, endDate);
 
@@ -139,5 +145,22 @@ public class InMemoryTrainingSessionRepositoryTest {
                 .hasSize(1)
                 .extracting(Exercise::getName)
                 .containsExactly("Бег");
+    }
+
+    @Test
+    void shouldFindAllSessionsNotAfterGivenDate() {
+        LocalDate date = LocalDate.of(2025, 3, 5); // Проверяем все сессии не позже 5 марта 2025
+
+        List<TrainingSession> result = repository.findAllSessionsNotAfter(date);
+
+        assertThat(result)
+                .as("Проверка сессий, начавшихся не позже 2025-03-05")
+                .hasSize(4) // Ожидаем Daily, Weekly и Monthly (все начались до или на 5 марта)
+                .extracting(TrainingSession::getId)
+                .containsExactlyInAnyOrder(1L, 2L, 3L, 4L)
+                .doesNotContain(5L); // Expired Session (2 февраля) должна быть исключена
+
+        // Проверка, что все сессии действительно не позже даты
+        assertTrue(result.stream().allMatch(session -> !session.getStartDate().isAfter(date)));
     }
 }

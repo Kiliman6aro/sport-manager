@@ -32,4 +32,11 @@ public class InMemoryTrainingSessionRepository implements TrainingSessionReposit
                 .filter(session -> !session.getStartDate().isAfter(endDate))    // Начинается не позже endDate
                 .collect(toList());
     }
+
+    @Override
+    public List<TrainingSession> findAllSessionsNotAfter(LocalDate date) {
+        return data.stream()
+                .filter(session -> !session.getStartDate().isAfter(date)) // Сессии, начавшиеся не позже указанной даты
+                .collect(toList());
+    }
 }
